@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>CheckList</title>
+    <style media="screen">
+      #display {
+        width: 500px;
+        height: 500px;
+        border: 1px solid red;
+        margin: 0px auto;
+        text-align: justify;
+      }
+
+      #addTask {
+        display: block;
+        margin:  10px;
+        position: relative;
+        left: 100px;
+        width: 300px;
+        height: 20px;
+      }
+      table {
+        position: relative;
+        left: 105px;
+      }
+
+      .active {
+        text-decoration: line-through;
+        color: gray;
+      }
+      .complete {
+        display: none;
+      }
+
+      .delTask {
+          position: relative;
+          left: 150px;
+      }
+      td {
+
+      }
+    </style>
+  </head>
+  <body>
+    <div id = "display">
+      <input id = "addTask" type="text" placeholder="Введите текущую задачу на день">
+      <table id = "field"></table>
+    </div>
+
+    <script type="text/javascript">
+      let inputTask = document.getElementById('addTask');
+      let table = document.getElementById('field');
+      let textArr = [];
+      let checkArr = [];
+
+      textArr = getAll('saveText');
+      checkArr = getAll('checkText');
+
+      if (textArr == null && checkArr == null) {
+        textArr = [];
+        checkArr = [];
+      }
+
+
+
+      console.log(textArr);
+      console.log(checkArr);
+
+
+      initTask(table, inputTask, textArr, checkArr);
+
+      function initTask(table, inputTask, textArr, checkArr) {
+
+        addNewTask(table, inputTask, textArr, checkArr);
+      }
+
+      function addNewTask(table, inputTask, textArr, checkArr) {
+
+
+        inputTask.addEventListener('keyup', function() {
+          if (event.keyCode == 13) {
+            if (inputTask.value != '') {
+              let tr = document.createElement('tr');
+              let td = document.createElement('td');
+              var chbox = document.createElement('input');
+              chbox.type = 'checkbox';
+              textArr.push(inputTask.value);
+              checkArr.push(false);
+              td.innerHTML = textArr[i];
+              i++;
+              inputTask.value = '';
+              table.appendChild(tr);
+              tr.insertBefore(chbox, tr.firstChild);
+              tr.appendChild(td);
+              deleteTask(table, tr, i, textArr, checkArr);
+              pushSelectTask(checkArr, i, chbox, td, tr);
+              console.log(checkArr);
+
+          }
+        }
+
+      });
+
+      for (var i = 0; i < textArr.length; i++) {
+        let tr = document.createElement('tr');
+        let td = document.createElement('td');
+        var chbox = document.createElement('input');
+        chbox.type = 'checkbox';
+        table.appendChild(tr);
+        tr.insertBefore(chbox, tr.firstChild);
+        tr.appendChild(td);
+        td.innerHTML = textArr[i];
+        createTask(td, textArr, i);
+        deleteTask(table, tr, i, textArr, checkArr);
+        pushSelectTask(checkArr, i, chbox, td, tr);
+
+    }
+    }
+
+    function createTask(td, textArr, i) {
+      td.addEventListener('click',add);
+
+    function add(){
+      var text = this.innerHTML;
+      this.innerHTML = '';
+
+      var input = document.createElement('input');
+      input.value = text;
+      this.appendChild(input);
+
+      var self = this;
+      input.addEventListener('blur',function(){
+      self.innerHTML = this.value;
+      set(textArr, 'saveText', i, self.innerHTML);
+      console.log(get('saveText', i));
+      console.log(textArr);
+      self.addEventListener('click',add);
+      });
+      this.removeEventListener('click',add);
+        }
+    }
+
+    function pushSelectTask(checkArr, i, chbox, td, tr) {
+      chbox.addEventListener('click', function() {
+        if (checkArr[i] == false) {
+          set(checkArr, 'checkText', i, true);
+          getStyleLine(checkArr, i, chbox, td);
+        }
+
+      });
+      getStyleLine(checkArr, i, chbox, td);
+    }
+
+    function getStyleLine(checkArr, i, chbox, td) {
+      if (checkArr[i] == true) {
+        chbox.classList.add('complete');
+        td.classList.add('active');
+      }
+    }
+
+    function deleteTask(table, tr, i, textArr, checkArr) {
+      var td = document.createElement('td');
+      tr.appendChild(td);
+      var del = document.createElement('a');
+      del.classList.add('delTask');
+      del.href = "#";
+      del.innerHTML = "delete";
+      td.appendChild(del);
+
+      del.addEventListener('click', function() {
+        table.removeChild(tr);
+        textArr.splice(i, i);
+        checkArr.splice(i, i);
+       if (i == 0) {
+         textArr.shift();
+         checkArr.shift();
+        }
+      });
+    }
+
+    window.onunload = function() {
+      saveAll('saveText', textArr);
+      saveAll('checkText', checkArr);
+    //  localStorage.clear();
+    }
+
+    function saveAll (id, data) {
+      localStorage.setItem(id, JSON.stringify(data));
+
+    }
+
+    function getAll (id) {
+      let json = localStorage.getItem(id);
+      return JSON.parse(json);
+    }
+
+    function set (arr, id, key, newValue) {
+      arr[key] = newValue;
+      saveAll(id, arr);
+    }
+
+    function get (id, key) {
+      let arr = getAll(id);
+
+      if (arr[key] !== undefined) {
+        return arr[key];
+      }
+      return null;
+    }
+    </script>
+  </body>
+</html>
